@@ -1,0 +1,29 @@
+.rounded-button {
+        width: 200px;
+        height: 200px;
+        background-color: #009578;
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+        text-decoration: none;
+        transition: background 0.2s;
+        }
+
+.rounded-button:hover {
+            background: #00866c;
+}
+
+body {
+    background-color: #f7d6a1;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.navigation {
+    display: flex;
+    gap: 90px;
+}

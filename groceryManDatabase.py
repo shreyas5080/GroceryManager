@@ -1,9 +1,12 @@
 import psycopg2
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 def get_connection():
     connection = psycopg2.connect(host='localhost', port=5432,
-                                  database='groceryManagement-db', user='postgres', password='successiskey')
+                                  database='groceryManagement_db', user='postgres', password=os.getenv('DB_PASSWORD'))
 
     return connection
 
