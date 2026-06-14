@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-import groceryManDatabase
+from  groceryManDatabase import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name 
 
 
 app = Flask(__name__)
@@ -18,7 +18,7 @@ def print_groceries():
     if "email" in session:
         email = session["email"]
 
-        result = groceryManDatabase.get_results(email)
+        result = get_results(email)
         return render_template("print_grocery.html", results=result)
     else:
 
@@ -35,7 +35,7 @@ def add():
 
             email = session["email"]
             int_quantity = int(item_quantity)
-            groceryManDatabase.insert(item_name, int_quantity, email)
+            insert(item_name, int_quantity, email)
 
             return redirect(url_for('print_groceries'))
         else:
@@ -52,8 +52,8 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        db_results = groceryManDatabase.get_email(email)
-        db_pass_res = groceryManDatabase.get_password(email)
+        db_results = get_email(email)
+        db_pass_res = get_password(email)
 
         session["email"] = email
         session["password"] = password
@@ -70,8 +70,8 @@ def login():
     else:
         if "email" in session:
             email = session["email"]
-            get_name = groceryManDatabase.get_name(email)
-            return redirect(url_for("the_user", user_name=get_name))
+            get_user = get_name(email)
+            return redirect(url_for("the_user", user_name=get_user))
 
     return render_template("login.html")
 
@@ -86,17 +86,14 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
 
-        flash("If you have been redirected, that means that you are not registered yet!")
-        groceryManDatabase.insert_in_users(user_fname, user_lname, email, password)
+        exiting_email = get_email(email)
 
-        if email:
-            get_email = groceryManDatabase.get_email(email)
-
-            if email == get_email:
+        if exiting_email:
                 flash("This email is already used")
                 return redirect(url_for("register"))
 
         else:
+            insert_in_users(user_fname, user_lname, email, password)
             return redirect(url_for('login'))
 
     else:
@@ -113,7 +110,7 @@ def the_user():
 
     else:
         email = session["email"]
-        get_name = groceryManDatabase.get_name(email)
+        get_name = get_name(email)
         flash("You are logged in!")
         return render_template("users.html", user_name=get_name)
 
