@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-from  groceryManDatabase import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name 
+from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name 
 
 
 app = Flask(__name__)
