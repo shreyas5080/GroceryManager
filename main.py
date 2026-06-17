@@ -2,6 +2,19 @@ from flask import Flask, render_template, request, url_for, redirect,session, fl
 from datetime import timedelta
 from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name 
 
+from functools import wraps
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "email" not in session:
+            flash("Please Login")
+            return redirect(url_for("login"))
+            
+        return f(*args, **kwargs)
+
+    return decorated
+
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(seconds=30)
@@ -14,6 +27,7 @@ def home():
 
 
 @app.route("/result")
+@login_required
 def print_groceries():
     if "email" in session:
         email = session["email"]
@@ -26,6 +40,7 @@ def print_groceries():
 
 
 @app.route("/add", methods=["POST", "GET"])
+@login_required
 def add():
     if "email" in session:
         if request.method == "POST":
@@ -104,15 +119,12 @@ def register():
 
 
 @app.route("/user", methods=["POST", "GET"])
+@login_required
 def the_user():
-    if "email" not in session:
-        return redirect(url_for("login"))
-
-    else:
-        email = session["email"]
-        get_name = get_name(email)
-        flash("You are logged in!")
-        return render_template("users.html", user_name=get_name)
+    email = session["email"]
+    get_user= get_name(email)
+    flash("You are logged in!")
+    return render_template("users.html", user_name=get_user)
 
 
 @app.route("/logout", methods=["POST", "GET"])
@@ -121,7 +133,7 @@ def logout():
         if "email" in session:
             flash("You have been logged out", "info")
             session.pop("email")
-            return redirect(url_for("login.html"))
+            return redirect(url_for("login"))
         else:
             flash('You are not logged in yet! ')
             return redirect(url_for("login"))
