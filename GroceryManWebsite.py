@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-from  groceryManDatabase import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name 
+from  groceryManDatabase import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name
+import secrets 
+from OTP import user_otp
 
 
 app = Flask(__name__)
@@ -89,18 +91,30 @@ def register():
         exiting_email = get_email(email)
 
         if exiting_email:
-                flash("This email is already used")
-                return redirect(url_for("register"))
+            flash("This email is already used")
+            return redirect(url_for("register"))
 
         else:
-            insert_in_users(user_fname, user_lname, email, password)
-            return redirect(url_for('login'))
+            email_for_otp(email)
+            #insert_in_users(user_fname, user_lname, email, password)
+            return redirect(url_for())
 
     else:
         if "email" in session:
             return redirect(url_for("the_user"))
 
         return render_template("register.html")
+    
+
+@app.route("/register/yourotp", methods=["POST"])
+def get_otp():
+
+    email = request.form["email"]
+    email_for_otp(email)
+    
+
+def email_for_otp(user_email):
+    return user_email
 
 
 @app.route("/user", methods=["POST", "GET"])
