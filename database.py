@@ -126,6 +126,34 @@ def get_user():
     return users
 
 
+def get_otp(user_email):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute('''SELECT user_otp FROM otp_verification WHERE user_email= %s''',
+                   (user_email,))
+    otp_result = cursor.fetchone()
+
+    connection.commit()
+    connection.close()
+
+    return otp_result
+
+
+def get_temp_email(user_email):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute('''SELECT email FROM otp_verification WHERE user_email= %s''',
+                   (user_email,))
+    otp_email = cursor.fetchone()
+
+    connection.commit()
+    connection.close()
+
+    return otp_email
+
+
 def delete_person(user_email):
     connection = get_connection()
     cursor = connection.cursor()

@@ -1,6 +1,8 @@
+import time
+
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name, insert_in_otp
+from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, get_temp_email
 import secrets 
 from OTP import user_otp
 
@@ -84,29 +86,53 @@ def login():
 def register():
     if request.method == "POST":
 
-        user_fname = request.form["fname"]
-        user_lname = request.form["lname"]
-
-        email = request.form["email"]
-        password = request.form["password"]
-
+        email = request.form["email"]        
         exiting_email = get_email(email)
 
         if exiting_email:
             flash("This email is already used")
             return redirect(url_for("register"))
 
-        else:
-            
+        else:  
             user_otp(email)
-            #insert_in_users(user_fname, user_lname, email, password)
-            return redirect(url_for())
+            return redirect(url_for('verifying_otp'))
 
     else:
         if "email" in session:
             return redirect(url_for("the_user"))
 
         return render_template("register.html")
+
+@app.route('/otp-verification', methods=["POST", "GET"])
+def verifying_otp():
+    
+    if request.method == "POST":
+        user_fname = request.form["fname"]
+        user_lname = request.form["lname"]
+        password = request.form["password"]
+        returned_email = get_temp_email
+
+        user_otp = request.form["code"]
+        returned_otp = user_otp[0]
+
+        otp_time = user_otp[1]
+        current_time = time.time()
+        less_than_five = current_time - otp_time
+
+        if less_than_five < 300 and user_otp == returned_otp:
+            insert_in_users(user_fname, user_lname, returned_email, password)
+            flash("Successfully Registered")
+
+            return redirect(url_for("the_user"))
+
+        elif less_than_five > 300:
+            flash("Time Expired")
+
+        else:
+            flash("Wrong OTP")
+
+    else:
+        return redirect(url_for('otp_verification.html'))
 
 
 @app.route("/user", methods=["POST", "GET"])
