@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name
+from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name, insert_in_otp
 import secrets 
 from OTP import user_otp
 
@@ -97,7 +97,8 @@ def register():
             return redirect(url_for("register"))
 
         else:
-            email_for_otp(email)
+            
+            user_otp(email)
             #insert_in_users(user_fname, user_lname, email, password)
             return redirect(url_for())
 
@@ -106,17 +107,6 @@ def register():
             return redirect(url_for("the_user"))
 
         return render_template("register.html")
-    
-
-@app.route("/register/yourotp", methods=["POST"])
-def get_otp():
-
-    email = request.form["email"]
-    email_for_otp(email)
-    
-
-def email_for_otp(user_email):
-    return user_email
 
 
 @app.route("/user", methods=["POST", "GET"])

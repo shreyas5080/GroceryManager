@@ -3,19 +3,37 @@ import os
 import secrets
 import time
 
-from flask import request
 from dotenv import load_dotenv
 from email.message import EmailMessage
-from GroceryManWebsite import email_for_otp
+from database import delete_otp, insert_in_otp
 
-def user_otp():
+
+def user_otp(user_email):
+
+    otp_dict = {'otp': ''.join(
+        str(secrets.rangebelow(10) for _ in range(6))
+        ),
+        'time': time.time()
+        }
+    insert_in_otp(user_email, otp_dict['otp'])
+    current_time = time.time()
+    
+    if current_time - otp_dict["time"] > 300:
+        delete_otp(user_email)
+        return 'Time Expired'
+
+    elif otp_dict["otp"] == user_otp:
+        return int(otp_dict['otp'])
+
+    else:
+        return "Wrong OTP"
+    
+
+def sending_otp(user_email):
     load_dotenv()
 
     email = os.getenv("EMAIL")
     password = os.getenv("DB_PASSWORD")
-    otp = ''.join(
-        str(secrets.rangebelow(10) for _ in range(6))
-        )
 
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls
@@ -27,20 +45,13 @@ def user_otp():
     message["Fom"] = email
 
     
-    message["To"] = email_for_otp
+    message["To"] = user_email
+    if type(user_otp) is int:
+        message.set_content(f"Your OTP is: {user_otp}")
 
-    message.set_content(f"Your OTP is: {otp}")
+        server.send_message(message)
 
-    server.send_message(message)
+        server.quit()
 
-    server.quit()
-
-    return otp
-
-
-def expiration_time():
-    
-
-    otp_code = user_otp
-
-            
+    else:
+        server.quit()

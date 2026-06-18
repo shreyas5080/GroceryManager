@@ -58,6 +58,17 @@ def insert_in_users(fname, lname, email, password):
     connection.close()
 
 
+def insert_in_otp(user_email, otp):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute('''INSERT INTO storing_temp_otp(email, otp) VALUES(%s, %s)''',
+                   (user_email, otp))
+
+    connection.commit()
+    connection.close()
+
+
 def get_email(user_email):
     connection = get_connection()
     cursor = connection.cursor()
@@ -123,3 +134,14 @@ def delete_person(user_email):
 
     connection.commit()
     connection.close()
+
+def delete_otp(user_email):
+
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute('''DELETE FROM storing_temp_otp WHERE user_email = %s''', (user_email,))
+
+    connection.commit()
+    connection.close()
+    
