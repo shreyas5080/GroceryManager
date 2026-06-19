@@ -10,11 +10,10 @@
 
 <body>
     {% block content %}
-    <form action="{{url_for('verifying_otp') }}" method="post">
-        <input type="text" name="code" placeholder="OTP Code" required>
-        <input type="submit" value="Submit OTP">
+    <form action="get_otp" method="post">
+        <input type="text" name="code" placeholder="OTP Code">
+        <input type="button" value="Submit OTP">
     </form>
-
 
     {% endblock %}
 

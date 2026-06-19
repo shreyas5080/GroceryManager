@@ -5,11 +5,33 @@ import time
 
 from dotenv import load_dotenv
 from email.message import EmailMessage
-from database import insert_in_otp, get_otp, delete_otp
+from database import delete_otp, insert_in_otp
 
 
 def user_otp(user_email):
+
+    otp_dict = {'otp': ''.join(
+        str(secrets.rangebelow(10) for _ in range(6))
+        ),
+        'time': time.time()
+        }
+    insert_in_otp(user_email, otp_dict['otp'])
+    current_time = time.time()
+    
+    if current_time - otp_dict["time"] > 300:
+        delete_otp(user_email)
+        return 'Time Expired'
+
+    elif otp_dict["otp"] == user_otp:
+        return int(otp_dict['otp'])
+
+    else:
+        return "Wrong OTP"
+    
+
+def sending_otp(user_email):
     load_dotenv()
+
     email = os.getenv("EMAIL")
     password = os.getenv("EMAIL_PASSWORD")
 
@@ -21,30 +43,18 @@ def user_otp(user_email):
     server.login(email, password)
 
     message = EmailMessage()
+
     message["Subject"] = "Your OTP"
-    message["From"] = email
-    message["To"] = user_email
-
-    otp = ''.join(str(secrets.randbelow(10)) for _ in range(6))
-    insert_in_otp(user_email, otp)
-
-    message.set_content(f"Your OTP is: {otp}")
-    server.send_message(message)
-    server.quit()
-
-    return otp
-
-
-def verify_otp(user_email, entered_otp):
-    otp_data = get_otp(user_email)
-    if not otp_data:
-        return "Wrong OTP"
-
-    stored_otp = otp_data[0]
-    if stored_otp == entered_otp:
-        delete_otp(user_email)
-        return True
-
-    return "Wrong OTP"
+    message["Fom"] = email
 
     
+    message["To"] = user_email
+    if type(user_otp) is int:
+        message.set_content(f"Your OTP is: {user_otp}")
+
+        server.send_message(message)
+
+        server.quit()
+
+    else:
+        server.quit()

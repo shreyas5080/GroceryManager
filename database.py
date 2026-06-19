@@ -127,20 +127,6 @@ def get_user():
     return users
 
 
-def get_otp(user_email):
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute('''SELECT otp FROM storing_temp_otp WHERE email = %s''',
-                   (user_email,))
-    otp_result = cursor.fetchone()
-
-    connection.commit()
-    connection.close()
-
-    return otp_result
-
-
 def delete_person(user_email):
     connection = get_connection()
     cursor = connection.cursor()
