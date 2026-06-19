@@ -1,16 +1,27 @@
 import time
 
-from flask import Flask, render_template, request, url_for, redirect,session, flash
+from flask import Flask, render_template, request, url_for, redirect, session, flash
 from datetime import timedelta
-from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, get_temp_email
-import secrets 
-from OTP import user_otp
-
+from database import insert, get_results, insert_in_users, get_email, get_password, get_name
+from OTP import user_otp, verify_otp
+from functools import wraps
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(seconds=30)
 app.secret_key = "wearetheworld"
 
+def login_required(func):
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+
+        if "email" not in session:
+            flash("Please login first", "error")
+            return redirect(url_for("login"))
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 @app.route("/", methods=["POST", "GET"])
 def home():
@@ -85,54 +96,65 @@ def login():
 @app.route("/register", methods=["POST", "GET"])
 def register():
     if request.method == "POST":
-
-        email = request.form["email"]        
+        user_fname = request.form["fname"]
+        user_lname = request.form["lname"]
+        email = request.form["email"]
+        password = request.form["password"]
         exiting_email = get_email(email)
 
         if exiting_email:
             flash("This email is already used")
             return redirect(url_for("register"))
 
-        else:  
+        session["pending_registration"] = {
+            "fname": user_fname,
+            "lname": user_lname,
+            "email": email,
+            "password": password,
+        }
+
+        try:
             user_otp(email)
-            return redirect(url_for('verifying_otp'))
+            flash("OTP sent to your email. Please enter it below.", "info")
+        except Exception:
+            flash("Unable to send OTP. Check email settings.", "error")
+            return redirect(url_for("register"))
 
-    else:
-        if "email" in session:
-            return redirect(url_for("the_user"))
+        return redirect(url_for("verifying_otp"))
 
-        return render_template("register.html")
+    return render_template("register.html")
+
 
 @app.route('/otp-verification', methods=["POST", "GET"])
 def verifying_otp():
-    
+    pending = session.get("pending_registration")
+
+    if not pending:
+        flash("No pending registration found. Please start again.", "error")
+        return redirect(url_for("register"))
+
     if request.method == "POST":
-        user_fname = request.form["fname"]
-        user_lname = request.form["lname"]
-        password = request.form["password"]
-        returned_email = get_temp_email
+        entered_otp = request.form.get("code", "").strip()
+        if not entered_otp:
+            flash("Please enter the OTP.", "error")
+            return render_template("otp_verification.html")
 
-        user_otp = request.form["code"]
-        returned_otp = user_otp[0]
-
-        otp_time = user_otp[1]
-        current_time = time.time()
-        less_than_five = current_time - otp_time
-
-        if less_than_five < 300 and user_otp == returned_otp:
-            insert_in_users(user_fname, user_lname, returned_email, password)
-            flash("Successfully Registered")
-
+        verification = verify_otp(pending["email"], entered_otp)
+        if verification is True:
+            insert_in_users(
+                pending["fname"],
+                pending["lname"],
+                pending["email"],
+                pending["password"],
+            )
+            session.pop("pending_registration", None)
+            session["email"] = pending["email"]
+            flash("Registration successful. You are now logged in.", "success")
             return redirect(url_for("the_user"))
 
-        elif less_than_five > 300:
-            flash("Time Expired")
+        flash(verification, "error")
 
-        else:
-            flash("Wrong OTP")
-
-    else:
-        return redirect(url_for('otp_verification.html'))
+    return render_template("otp_verification.html")
 
 
 @app.route("/user", methods=["POST", "GET"])
