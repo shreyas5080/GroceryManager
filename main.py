@@ -3,7 +3,7 @@ from datetime import timedelta
 from  database import get_connection, insert, get_results, insert_in_users, get_email, get_password, get_name, insert_in_otp
 import secrets 
 from OTP import user_otp
-
+from functools import wraps
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(seconds=30)
