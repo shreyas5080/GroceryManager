@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> {% block Title %} OTP-Verification {% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     {% block content %}
-        <form action="{{url_for('verifying_otp') }}" method="post">
-            <input type="text" name="code" placeholder="OTP Code">
-            <input type="button" value="Submit OTP">
-        </form>
+    <form action="get_otp" method="post">
+        <input type="text" name="code" placeholder="OTP Code">
+        <input type="button" value="Submit OTP">
+    </form>
 
-        
     {% endblock %}
-    
+
 </body>
+
 </html>
