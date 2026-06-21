@@ -6,7 +6,7 @@ load_dotenv()
 
 def get_connection():
     connection = psycopg2.connect(host='localhost', port=5432,
-                                  database='groceryManagement_db', user='postgres', password=os.getenv('DB_PASSWORD'))
+                                  database='groceryManagement-db', user='postgres', password=os.getenv('DB_PASSWORD'))
 
     return connection
 
@@ -58,12 +58,12 @@ def insert_in_users(fname, lname, email, password):
     connection.close()
 
 
-def insert_in_otp(user_email, otp):
+def insert_in_otp(user_email, user_otp):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute('''INSERT INTO storing_temp_otp(email, otp) VALUES(%s, %s)''',
-                   (user_email, otp))
+    cursor.execute('''INSERT INTO otp_verification(email, user_otp) VALUES(%s, %s)''',
+                   (user_email, user_otp))
 
     connection.commit()
     connection.close()
@@ -168,7 +168,7 @@ def delete_otp(user_email):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute('''DELETE FROM storing_temp_otp WHERE user_email = %s''', (user_email,))
+    cursor.execute('''DELETE FROM otp_verification WHERE email = %s''', (user_email,))
 
     connection.commit()
     connection.close()

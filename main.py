@@ -1,16 +1,31 @@
 import time
+import secrets 
 
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
-from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, get_temp_email
-import secrets 
+from datetime import datetime
+
+from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, delete_otp
 from OTP import user_otp
+from functools import wraps
 
 
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(seconds=30)
 app.secret_key = "wearetheworld"
 
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if "email" not in session:
+            flash("Please Login")
+            return redirect(url_for("login"))
+            
+        return f(*args, **kwargs)
+
+    return decorated
+    
 
 @app.route("/", methods=["POST", "GET"])
 def home():
@@ -86,16 +101,27 @@ def login():
 def register():
     if request.method == "POST":
 
-        email = request.form["email"]        
+        email = request.form["email"]    
         exiting_email = get_email(email)
 
         if exiting_email:
+
             flash("This email is already used")
             return redirect(url_for("register"))
 
         else:  
-            user_otp(email)
+            session['user_fname'] = request.form["fname"]
+            session['user_lname'] = request.form["lname"]
+            session['email'] = email
+            session[' password'] = request.form["password"]
+
+            returned_function = user_otp(email)
+            session['otp'] = returned_function[0]
+            session['time'] = returned_function[1]
+
+            
             return redirect(url_for('verifying_otp'))
+                            
 
     else:
         if "email" in session:
@@ -107,32 +133,45 @@ def register():
 def verifying_otp():
     
     if request.method == "POST":
-        user_fname = request.form["fname"]
-        user_lname = request.form["lname"]
-        password = request.form["password"]
-        returned_email = get_temp_email
 
-        user_otp = request.form["code"]
-        returned_otp = user_otp[0]
+        us_otp = request.form["user_otp"]
+        
+        returned_otp = session.get('otp')
+        otp_time = session.get('time')
 
-        otp_time = user_otp[1]
         current_time = time.time()
-        less_than_five = current_time - otp_time
+        dt = datetime.fromtimestamp(current_time)
+        
+        the_minute = dt.minute
+        less_than_five = the_minute - otp_time 
 
-        if less_than_five < 300 and user_otp == returned_otp:
-            insert_in_users(user_fname, user_lname, returned_email, password)
+        if less_than_five < 5 and us_otp == returned_otp:
+            
+            fname = session.get('user_fname')
+            lname = session.get('user_lname')
+            email = session.get('email')
+            password = session.get('password')
+
+            insert_in_users(fname, lname, email, password)
+            
             flash("Successfully Registered")
+            delete_otp(email)
+            session.pop('otp')
+            session.pop('time')
 
-            return redirect(url_for("the_user"))
+            return redirect(url_for('the_user'))
 
         elif less_than_five > 300:
             flash("Time Expired")
+            return redirect(url_for('verifying_otp'))
 
         else:
             flash("Wrong OTP")
+            return redirect(url_for('verifying_otp'))
 
     else:
-        return redirect(url_for('otp_verification.html'))
+        email = session.get('email')
+        return render_template('otp_verification.html')
 
 
 @app.route("/user", methods=["POST", "GET"])
