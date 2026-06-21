@@ -62,8 +62,14 @@ def insert_in_otp(user_email, user_otp):
     connection = get_connection()
     cursor = connection.cursor()
 
+<<<<<<< HEAD
     cursor.execute('''INSERT INTO otp_verification(email, user_otp) VALUES(%s, %s)''',
                    (user_email, user_otp))
+=======
+    cursor.execute('''DELETE FROM storing_temp_otp WHERE email = %s''', (user_email,))
+    cursor.execute('''INSERT INTO storing_temp_otp(email, otp) VALUES(%s, %s)''',
+                   (user_email, otp))
+>>>>>>> 7bc9a78eebc3698f2ceff81413330f9acafe852a
 
     connection.commit()
     connection.close()
@@ -126,34 +132,6 @@ def get_user():
     return users
 
 
-def get_otp(user_email):
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute('''SELECT user_otp FROM otp_verification WHERE user_email= %s''',
-                   (user_email,))
-    otp_result = cursor.fetchone()
-
-    connection.commit()
-    connection.close()
-
-    return otp_result
-
-
-def get_temp_email(user_email):
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute('''SELECT email FROM otp_verification WHERE user_email= %s''',
-                   (user_email,))
-    otp_email = cursor.fetchone()
-
-    connection.commit()
-    connection.close()
-
-    return otp_email
-
-
 def delete_person(user_email):
     connection = get_connection()
     cursor = connection.cursor()
@@ -168,7 +146,11 @@ def delete_otp(user_email):
     connection = get_connection()
     cursor = connection.cursor()
 
+<<<<<<< HEAD
     cursor.execute('''DELETE FROM otp_verification WHERE email = %s''', (user_email,))
+=======
+    cursor.execute('''DELETE FROM storing_temp_otp WHERE email = %s''', (user_email,))
+>>>>>>> 7bc9a78eebc3698f2ceff81413330f9acafe852a
 
     connection.commit()
     connection.close()

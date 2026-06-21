@@ -4,20 +4,26 @@
 
 {% block body %}
 
-    <header>
-    </header>
+<header>
+</header>
 
+<<<<<<< HEAD
     <form action="{{ url_for('register') }}" method="POST" class="box">
         <h2>Sign Up</h2>
+=======
+<form action="{{url_for('register')}}" method="POST" class="box">
+    <h2>Sign Up</h2>
+>>>>>>> 7bc9a78eebc3698f2ceff81413330f9acafe852a
 
-        <input name="fname" type="text"  placeholder= "First Name" required>
+    <input name="fname" type="text" placeholder="First Name" required>
 
-        <input  name="lname" type="text" placeholder= "Last Name" required>
+    <input name="lname" type="text" placeholder="Last Name" required>
 
-        <input name="email" type="email" placeholder="email" required>
+    <input name="email" type="email" placeholder="email" required>
 
-        <input  name="password" type="password" placeholder= "Password" required>
+    <input name="password" type="password" placeholder="Password" required>
 
+<<<<<<< HEAD
         <a href="{{ url_for('verifying_otp') }}">
             <button type="submit" formaction class="create"> Create Account </button>
         </a>
@@ -26,16 +32,23 @@
             <button type="button" class="log_user"> Log in </button>
         </a>
 
+=======
+    <button type="submit" class="create"> Create Account </button>
 
-    </form>
+    <p>
+        Already have an account? <a href="{{url_for('login')}}"> Login here</a>
+    </p>
+>>>>>>> 7bc9a78eebc3698f2ceff81413330f9acafe852a
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for msg in messages %}
-                <p> {{msg}} </p>
-            {% endfor %}
+</form>
 
-        {% endif %}
-    {% endwith %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for msg in messages %}
+<p> {{msg}} </p>
+{% endfor %}
+
+{% endif %}
+{% endwith %}
 
 {% endblock %}

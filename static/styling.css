@@ -1,29 +1,51 @@
 .rounded-button {
-        width: 200px;
-        height: 200px;
-        background-color: #009578;
-        color: white;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        border-radius: 50%;
-        border: none;
-        text-decoration: none;
-        transition: background 0.2s;
-        }
+    width: 200px;
+    height: 200px;
+    background-color: #009578;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    text-decoration: none;
+    transition: background 0.2s;
+}
 
 .rounded-button:hover {
-            background: #00866c;
+    background: #00866c;
 }
 
 body {
-    background-color: #f7d6a1;
+    background-color: #FAFAFA;
     margin: 0;
+    color: #111827;
     min-height: 100vh;
+    font: 1em sans-serif;
 }
 
 .navigation {
     display: flex;
-    gap: 90px;
+    position: sticky;
+    height: 30%;
+    width: 100%;
+    z-index: 1000;
+    background-color: #171717;
+}
+
+.navigation a {
+    border: 1px solid #FFFFFF;
+    color: #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.025);
+    padding: 12px 20px;
+    margin: 10px;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.navigation a:hover {
+    box-shadow: 0 8px 20px rgba(255, 255, 255, 0.26);
+    transform: scale(1.05);
 }
