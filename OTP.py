@@ -21,6 +21,7 @@ def sending_otp(user_email):
 
     message["Subject"] = "Your OTP"
     message["Fom"] = email
+    message["To"] = user_email
 
     otp = ''.join(str(secrets.randbelow(10)) for _ in range(6))
     

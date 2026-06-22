@@ -1,12 +1,11 @@
 import time
-import secrets 
 
 from flask import Flask, render_template, request, url_for, redirect,session, flash
 from datetime import timedelta
 from datetime import datetime
 
 from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, delete_otp
-from OTP import user_otp
+from OTP import sending_otp
 from functools import wraps
 
 
@@ -127,7 +126,7 @@ def register():
             session['email'] = email
             session[' password'] = request.form["password"]
 
-            returned_function = user_otp(email)
+            returned_function = sending_otp(email)
             session['otp'] = returned_function[0]
             session['time'] = returned_function[1]
 
