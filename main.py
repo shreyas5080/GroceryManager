@@ -124,7 +124,7 @@ def register():
             session['user_fname'] = request.form["fname"]
             session['user_lname'] = request.form["lname"]
             session['email'] = email
-            session[' password'] = request.form["password"]
+            session['password'] = request.form["password"]
 
             returned_function = sending_otp(email)
             session['otp'] = returned_function[0]

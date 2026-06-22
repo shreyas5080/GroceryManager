@@ -30,10 +30,11 @@ def sending_otp(user_email):
     insert_in_otp(user_email, otp)
     server.send_message(message)
     current_time = time.time()
-    server.quit()
-
+    
     dt = datetime.fromtimestamp(current_time)
 
     minute = dt.minute
+    server.quit()
+
 
     return otp, minute
