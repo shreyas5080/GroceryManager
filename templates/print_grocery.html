@@ -9,25 +9,87 @@
                <th>
                    Name
                </th>
+
                <th>
                    Quantity
                </th>
+
+               <th>
+                   Deleting
+               </th>
+               
            </tr>
 
             {% for item in results %}
 
-                 <tr>
-                     <td> {{ item[0] }} </td>
-                     <td> {{ item[1] }} </td>
-                 </tr>
+                <tr data-id="{{ item[0] }}">
+                    <td> {{ item[1] }} </td>
+                    <td> {{ item[2] }} </td>
+                    <td> <button onclick="deleteItem(this)">🗑️</button> </td>
+
+                </tr>
 
             {% endfor %}
 
+
+
     </table>
+
+    <script>
+
+       
+        async function deleteItem(button) {
+            const row = button.closest("tr");
+            const itemId = row.dataset.id;
+
+            if (!itemId) {
+                console.error("Row is missing data-id attribute");
+                return;
+            }
+
+            if (!confirm("Delete this item?")) return;
+
+            button.disabled = true;
+
+            try {
+                const response = await fetch("/delete_item", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: itemId })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    row.remove();
+                } else {
+                    alert(data.error || "Failed to delete item.");
+                    button.disabled = false;
+                }
+            } catch (err) {
+                console.error("Delete failed:", err);
+                alert("Something went wrong deleting this item. Please try again.");
+                button.disabled = false;
+            }
+        }
+
+
+        
+    </script>
 
     <a href="{{ url_for('add') }}">
         <button class="rounded-button">
             Add
+        </button>
+    </a>
+
+    <a href="{{ url_for('deleting_items') }}">
+        <button class="rounded-button">
+            Delete
         </button>
     </a>
 

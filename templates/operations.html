@@ -11,7 +11,7 @@
         <input type="text" name="item_name" placeholder="Item's name" required>
         <br>
 
-        <input type="text" name="item_quantity" placeholder="Quantity">
+        <input type="number" name="item_quantity" min="1" max="100" required>
         <br>
 
         <a href="{{ url_for('print_groceries') }}">
@@ -21,5 +21,14 @@
         </a>
 
     </form>
+
+     {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for msg in messages %}
+                <p> {{msg}} </p>
+            {% endfor %}
+
+        {% endif %}
+    {% endwith %}
 
 {% endblock %}

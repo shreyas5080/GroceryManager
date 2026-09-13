@@ -21,11 +21,11 @@
                 Homepage
             </a>
 
-            <a href="{{ url_for('logout') }}">
+            <a href="{{ url_for('logout') }}" onclick="alert('Are you sure you want to log out? ')">
                 Logout
             </a>
 
-            <a href="{{ url_for('add') }}" onclick="alert('Please, log in or sign up first')">
+            <a href="{{ url_for('add') }}" >
                 Add
             </a>
 
@@ -37,7 +37,7 @@
                 Register
             </a>
 
-            <a href="{{ url_for('print_groceries') }}" onclick="alert('Please, log in or sign up first')">
+            <a href="{{ url_for('print_groceries') }}">
                 Groceries
             </a>
         </nav>

@@ -11,11 +11,11 @@ def get_connection():
     return connection
 
 
-def delete(name):
+def delete(item_id):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute('''DELETE FROM groceryitems WHERE item_name= %s ''', (name,))
+    cursor.execute('''DELETE FROM groceryitems WHERE item_id= %s ''', (item_id,))
     connection.commit()
     connection.close()
 
@@ -35,7 +35,7 @@ def get_results(user_email):
     connection = get_connection()
     cursor = connection.cursor()
 
-    cursor.execute('''select g.itemname 
+    cursor.execute('''select g.item_id, g.itemname, g.quantity, g.item_id 
     from groceryitems g join users u on 
     g.user_email = u.user_email
     where u.user_email = %s''', (user_email,))

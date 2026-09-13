@@ -1,15 +1,25 @@
 import time
+import requests
 
-from flask import Flask, render_template, request, url_for, redirect,session, flash
+from flask import Flask, render_template, request, url_for, redirect, session, flash, jsonify
 from datetime import timedelta
 from datetime import datetime
 
-from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, delete_otp
+from  database import insert, get_results, insert_in_users, get_email, get_password, get_name, delete_otp, delete
 from OTP import sending_otp
 from functools import wraps
 
 
 app = Flask(__name__)
+
+'''app_session = requests.Session()
+
+# Use 'app_session' for logging in AND subsequent data requests
+login_response = app_session.post('http://127.0.0.1:5000/login')
+
+# Now this request will automatically carry the session cookie!
+dashboard_response = app_session.get('http://127.0.0.1:5000/operations')
+'''
 app.permanent_session_lifetime = timedelta(seconds=300)
 app.secret_key = "wearetheworld"
 
@@ -35,14 +45,10 @@ def home():
 @app.route("/result")
 @login_required
 def print_groceries():
-    if "email" in session:
-        email = session["email"]
 
-        result = get_results(email)
-        return render_template("print_grocery.html", results=result)
-    else:
-
-        return render_template("operations.html")
+    email = session["email"]
+    result = get_results(email)
+    return render_template("print_grocery.html", results=result)
 
 
 @app.route("/add", methods=["POST", "GET"])
@@ -100,9 +106,9 @@ def register():
     if request.method == "POST":
 
         email = request.form["email"]    
-        exiting_email = get_email(email)
+        extracting_email = get_email(email)
 
-        if exiting_email:
+        if extracting_email:
 
             flash("This email is already used")
             return redirect(url_for("register"))
@@ -110,7 +116,7 @@ def register():
         else:  
             session['user_fname'] = request.form["fname"]
             session['user_lname'] = request.form["lname"]
-            session['email'] = email
+            session["email"] = email
             session['password'] = request.form["password"]
 
             returned_function = sending_otp(email)
@@ -196,6 +202,19 @@ def logout():
     else:
         return render_template('logout.html')
 
+
+@app.route("/delete_item", methods=["POST"])
+@login_required
+def deleting_items():
+    if request.method == "POST":
+       
+        data = request.get_json()
+        item_id = data["id"]
+        delete(item_id)
+
+        
+    return jsonify({"success": True})
+    
 
 if __name__ == "__main__":
    app.run(debug=True)

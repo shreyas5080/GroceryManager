@@ -1,0 +1,16 @@
+{% extends "base_template.html" %}
+
+{% block Title %} My groceries {% endblock %}
+
+{% block content %}
+
+    <table border="2">
+                      
+        <form action="{{ url_for('deleting_items') }}" method="post">        
+            <button type="submit">Delete</button>
+        </form>
+        
+    </table>
+
+
+{% endblock %}
